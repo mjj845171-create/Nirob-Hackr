@@ -2,141 +2,148 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<!-- 🔴 MOST IMPORTANT FIX -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>NIRIB HACKR</title>
 
 <style>
+*{box-sizing:border-box}
+
 body{
   margin:0;
-  padding:16px;
-  font-family:Segoe UI,Arial,sans-serif;
-  background:radial-gradient(circle at top,#001b3a,#000814);
-  color:#e6f4ff;
-  font-size:20px;          /* 🔥 BIG BASE FONT */
-  line-height:1.9;
+  padding:18px;
+  font-family:Segoe UI, Arial;
+  background:linear-gradient(180deg,#020b1c,#000814);
+  color:#eaf4ff;
 }
 
 /* TITLE */
-h2{
+h1{
   text-align:center;
-  color:#4fc3ff;
+  font-size:30px;
+  color:#5ad1ff;
+  margin:10px 0 25px;
   text-shadow:0 0 12px #00b0ff;
   cursor:pointer;
-  font-size:26px;
 }
 
 /* TEXT BOX */
-.textview{
-  background:#001f3f;
-  border:1px solid #00b0ff;
-  border-radius:14px;
-  padding:20px;
-  margin-top:18px;
-  font-size:21px;          /* 🔥 MAIN TEXT BIG */
+.card{
+  background:#081f3f;
+  border:1px solid #0b4a8b;
+  border-radius:16px;
+  padding:26px;
+  margin-bottom:16px;
+  font-size:30px;     /* VERY BIG TEXT */
   line-height:2;
 }
 
 /* COPY BUTTON */
 .copy{
   width:100%;
-  background:linear-gradient(135deg,#003cff,#00b0ff);
-  border:none;
-  color:#fff;
-  padding:16px;
-  border-radius:12px;
-  margin-top:12px;
+  padding:18px;
+  font-size:20px;
   font-weight:bold;
-  font-size:18px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(135deg,#007bff,#00cfff);
+  color:white;
+  margin-bottom:22px;
 }
 
 /* TOAST */
-.toast{
+#toast{
   position:fixed;
-  bottom:22px;
+  bottom:30px;
   left:50%;
   transform:translateX(-50%);
-  background:#003cff;
-  padding:14px 26px;
-  border-radius:30px;
+  background:#007bff;
+  color:white;
+  padding:16px 26px;
+  border-radius:40px;
   display:none;
   font-size:18px;
 }
 
 /* TELEGRAM FLOAT */
-.tg-float{
+.tg{
   position:fixed;
   bottom:22px;
-  right:18px;
-  background:linear-gradient(135deg,#0088cc,#00b0ff);
-  color:#fff;
+  right:22px;
+  background:#0088cc;
+  color:white;
   padding:16px 20px;
-  border-radius:50px;
-  font-weight:bold;
+  border-radius:40px;
+  font-size:18px;
   text-decoration:none;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  box-shadow:0 0 20px rgba(0,136,204,.7);
-  font-size:17px;
+  font-weight:bold;
+  box-shadow:0 0 18px rgba(0,136,204,.7);
 }
-.tg-float img{width:24px}
 
 /* ADMIN PANEL */
 #admin{
   display:none;
   position:fixed;
   inset:0;
-  background:#000c1f;
+  background:#000814;
   padding:18px;
   overflow:auto;
-  z-index:1000;
+}
+
+#admin h2{
+  text-align:center;
+  color:#5ad1ff;
+  font-size:26px;
 }
 
 textarea,input{
   width:100%;
-  border-radius:12px;
   padding:16px;
-  margin-top:10px;
   font-size:18px;
+  border-radius:12px;
+  margin-top:12px;
 }
 
 .btn{
-  background:#00b0ff;
-  border:none;
-  padding:12px 18px;
-  border-radius:12px;
-  margin:10px 4px;
+  width:100%;
+  padding:16px;
+  margin-top:12px;
+  font-size:18px;
   font-weight:bold;
-  font-size:17px;
+  border:none;
+  border-radius:12px;
+  background:#00b0ff;
+  color:white;
 }
 
 .item{
-  background:#001f3f;
+  background:#081f3f;
   padding:16px;
   border-radius:12px;
   margin-top:12px;
   font-size:18px;
+}
+
+/* EXTRA BIG FOR MOBILE */
+@media(max-width:600px){
+  .card{font-size:32px}
+  h1{font-size:32px}
 }
 </style>
 </head>
 
 <body>
 
-<h2 id="title">😈 NIRIB HACKR 😈</h2>
+<h1 id="title">😈 NIRIB HACKR 😈</h1>
 
 <div id="container"></div>
-<div class="toast" id="toast">✅ Copied</div>
 
-<a class="tg-float" id="tgBtn" target="_blank">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg">
-  Telegram
-</a>
+<div id="toast">✅ Copied</div>
 
+<a class="tg" id="tgBtn" target="_blank">Telegram</a>
+
+<!-- ADMIN -->
 <div id="admin">
-  <h3>🛠 Admin Panel</h3>
+  <h2>🛠 Admin Panel</h2>
 
   <input id="tgInput" placeholder="Telegram link">
   <textarea id="newText" placeholder="Add new text"></textarea>
@@ -144,27 +151,33 @@ textarea,input{
   <button class="btn" onclick="saveTelegram()">Save Telegram</button>
   <button class="btn" onclick="addText()">Add Text</button>
 
-  <div id="list"></div 
+  <div id="list"></div>
+
   <button class="btn" onclick="closeAdmin()">Close</button>
 </div>
 
 <script>
+const ADMIN_PASSWORD="Nirob";
+
+/* TELEGRAM */
 let tgLink=localStorage.getItem("tgLink")||"https://t.me/producermaruf";
 tgBtn.href=tgLink;
+tgInput.value=tgLink;
 
+/* DATA */
 let texts=JSON.parse(localStorage.getItem("texts"))||[
 "⚠️ Dear IMO team, abusive language is used in this room.",
 "❌ Illegal adult links are being shared.",
 "🔞 18+ content violates community rules.",
-"⚠️ Please suspend this voice room."
+"⚠️ Please suspend this voice room.",
+"❌ Harassment detected in chat."
 ];
-localStorage.setItem("texts",JSON.stringify(texts));
 
 function render(){
   container.innerHTML="";
   texts.forEach((t,i)=>{
     container.innerHTML+=`
-      <div class="textview" id="t${i}">${t}</div>
+      <div class="card" id="t${i}">${t}</div>
       <button class="copy" onclick="copyText('t${i}')">📋 Copy</button>
     `;
   });
@@ -177,48 +190,60 @@ function copyText(id){
   setTimeout(()=>toast.style.display="none",1200);
 }
 
-let tap=0;
+/* ADMIN (5 TAP) */
+let tap=0, tries=0;
 title.onclick=()=>{
   tap++;
   if(tap>=5){
     tap=0;
-    if(prompt("Admin Password")==="Nirob"){
+    if(tries>=3) return alert("Admin locked");
+    const p=prompt("Admin password");
+    if(p===ADMIN_PASSWORD){
       admin.style.display="block";
       renderAdmin();
+    }else{
+      tries++; alert("Wrong password");
     }
   }
 };
 
-function closeAdmin(){admin.style.display="none";}
+function closeAdmin(){admin.style.display="none"}
+
 function saveTelegram(){
   tgLink=tgInput.value;
   localStorage.setItem("tgLink",tgLink);
   tgBtn.href=tgLink;
+  alert("Telegram updated");
 }
 
 function renderAdmin(){
   list.innerHTML="";
   texts.forEach((t,i)=>{
     list.innerHTML+=`
-      <div class="item">${t}<br>
-      <button class="btn" onclick="delText(${i})">Delete</button></div>`;
+      <div class="item">${t}
+      <br><button class="btn" onclick="delText(${i})">Delete</button></div>
+    `;
   });
 }
+
 function addText(){
-  if(newText.value){
+  if(newText.value.trim()){
     texts.push(newText.value);
     save();
     newText.value="";
   }
 }
-function delText(i){texts.splice(i,1);save();}
+
+function delText(i){
+  texts.splice(i,1);
+  save();
+}
+
 function save(){
   localStorage.setItem("texts",JSON.stringify(texts));
-  render();renderAdmin();
+  render(); renderAdmin();
 }
 </script>
 
 </body>
 </html>
-
-
