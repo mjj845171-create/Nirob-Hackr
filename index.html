@@ -2,247 +2,214 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NIRIB HACKR</title>
 
-<style>
-*{box-sizing:border-box}
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<style>
 body{
   margin:0;
-  padding:18px;
-  font-family:Segoe UI, Arial;
-  background:linear-gradient(180deg,#020b1c,#000814);
-  color:#eaf4ff;
+  padding:16px;
+  font-family:Segoe UI,Arial;
+  background:#000814;
+  color:#e6f4ff;
+  font-size:20px;
+  line-height:1.9;
 }
 
-/* TITLE */
-h1{
+h2{
   text-align:center;
-  font-size:30px;
-  color:#5ad1ff;
-  margin:10px 0 25px;
-  text-shadow:0 0 12px #00b0ff;
+  color:#4fc3ff;
+  font-size:28px;
   cursor:pointer;
 }
 
-/* TEXT BOX */
-.card{
-  background:#081f3f;
-  border:1px solid #0b4a8b;
-  border-radius:16px;
-  padding:26px;
-  margin-bottom:16px;
-  font-size:30px;     /* VERY BIG TEXT */
-  line-height:2;
+.textview{
+  background:#001f3f;
+  border:2px solid #00b0ff;
+  border-radius:14px;
+  padding:20px;
+  margin-top:18px;
+  font-size:22px;
 }
 
-/* COPY BUTTON */
 .copy{
   width:100%;
-  padding:18px;
+  margin-top:12px;
+  padding:16px;
   font-size:20px;
   font-weight:bold;
   border:none;
-  border-radius:14px;
-  background:linear-gradient(135deg,#007bff,#00cfff);
-  color:white;
-  margin-bottom:22px;
+  border-radius:12px;
+  background:#00b0ff;
+  color:#000;
 }
 
-/* TOAST */
-#toast{
+.toast{
   position:fixed;
-  bottom:30px;
+  bottom:20px;
   left:50%;
   transform:translateX(-50%);
-  background:#007bff;
-  color:white;
-  padding:16px 26px;
-  border-radius:40px;
+  background:#00b0ff;
+  color:#000;
+  padding:14px 24px;
+  border-radius:30px;
   display:none;
   font-size:18px;
 }
 
-/* TELEGRAM FLOAT */
+/* Telegram */
 .tg{
   position:fixed;
-  bottom:22px;
-  right:22px;
+  right:20px;
+  bottom:20px;
   background:#0088cc;
-  color:white;
-  padding:16px 20px;
+  color:#fff;
+  padding:16px 22px;
   border-radius:40px;
   font-size:18px;
   text-decoration:none;
   font-weight:bold;
-  box-shadow:0 0 18px rgba(0,136,204,.7);
 }
 
-/* ADMIN PANEL */
+/* Admin */
 #admin{
   display:none;
   position:fixed;
   inset:0;
-  background:#000814;
+  background:#000;
   padding:18px;
   overflow:auto;
-}
-
-#admin h2{
-  text-align:center;
-  color:#5ad1ff;
-  font-size:26px;
 }
 
 textarea,input{
   width:100%;
   padding:16px;
   font-size:18px;
-  border-radius:12px;
-  margin-top:12px;
+  border-radius:10px;
+  margin-top:10px;
 }
 
 .btn{
-  width:100%;
-  padding:16px;
-  margin-top:12px;
+  margin-top:10px;
+  padding:14px;
   font-size:18px;
-  font-weight:bold;
   border:none;
-  border-radius:12px;
+  border-radius:10px;
   background:#00b0ff;
-  color:white;
+  font-weight:bold;
 }
 
 .item{
-  background:#081f3f;
-  padding:16px;
-  border-radius:12px;
-  margin-top:12px;
-  font-size:18px;
-}
-
-/* EXTRA BIG FOR MOBILE */
-@media(max-width:600px){
-  .card{font-size:32px}
-  h1{font-size:32px}
+  background:#001f3f;
+  padding:14px;
+  margin-top:10px;
+  border-radius:10px;
 }
 </style>
 </head>
 
 <body>
 
-<h1 id="title">😈 NIRIB HACKR 😈</h1>
+<h2 id="title">😈 NIRIB HACKR 😈</h2>
 
 <div id="container"></div>
+<div class="toast" id="toast">Copied</div>
 
-<div id="toast">✅ Copied</div>
-
-<a class="tg" id="tgBtn" target="_blank">Telegram</a>
+<a id="tgBtn" class="tg" target="_blank">Telegram</a>
 
 <!-- ADMIN -->
 <div id="admin">
-  <h2>🛠 Admin Panel</h2>
+  <h3>🛠 Admin Panel</h3>
 
-  <input id="tgInput" placeholder="Telegram link">
-  <textarea id="newText" placeholder="Add new text"></textarea>
-
+  <input id="tgInput" placeholder="Telegram Link">
   <button class="btn" onclick="saveTelegram()">Save Telegram</button>
+
+  <textarea id="newText" placeholder="New text..."></textarea>
   <button class="btn" onclick="addText()">Add Text</button>
 
   <div id="list"></div>
-
-  <button class="btn" onclick="closeAdmin()">Close</button>
+  <button class="btn" onclick="admin.style.display='none'">Close</button>
 </div>
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
 <script>
-const ADMIN_PASSWORD="Nirob";
+/* 🔥 FIREBASE CONFIG */
+firebase.initializeApp({
+  apiKey: "AIzaSyBxuBzrb_zNmfjEXagiOLoGhELR42-CzWg",
+  databaseURL: "https://nirobhackr-3dc17-default-rtdb.firebaseio.com"
+});
+
+const db = firebase.database();
 
 /* TELEGRAM */
-let tgLink=localStorage.getItem("tgLink")||"https://t.me/producermaruf";
-tgBtn.href=tgLink;
-tgInput.value=tgLink;
+const tgBtn=document.getElementById("tgBtn");
+const tgInput=document.getElementById("tgInput");
 
-/* DATA */
-let texts=JSON.parse(localStorage.getItem("texts"))||[
-"⚠️ Dear IMO team, abusive language is used in this room.",
-"❌ Illegal adult links are being shared.",
-"🔞 18+ content violates community rules.",
-"⚠️ Please suspend this voice room.",
-"❌ Harassment detected in chat."
-];
-
-function render(){
-  container.innerHTML="";
-  texts.forEach((t,i)=>{
-    container.innerHTML+=`
-      <div class="card" id="t${i}">${t}</div>
-      <button class="copy" onclick="copyText('t${i}')">📋 Copy</button>
-    `;
-  });
-}
-render();
-
-function copyText(id){
-  navigator.clipboard.writeText(document.getElementById(id).innerText);
-  toast.style.display="block";
-  setTimeout(()=>toast.style.display="none",1200);
-}
-
-/* ADMIN (5 TAP) */
-let tap=0, tries=0;
-title.onclick=()=>{
-  tap++;
-  if(tap>=5){
-    tap=0;
-    if(tries>=3) return alert("Admin locked");
-    const p=prompt("Admin password");
-    if(p===ADMIN_PASSWORD){
-      admin.style.display="block";
-      renderAdmin();
-    }else{
-      tries++; alert("Wrong password");
-    }
-  }
-};
-
-function closeAdmin(){admin.style.display="none"}
+db.ref("telegram/link").on("value",s=>{
+  const l=s.val()||"https://t.me/producermaruf";
+  tgBtn.href=l;
+  tgInput.value=l;
+});
 
 function saveTelegram(){
-  tgLink=tgInput.value;
-  localStorage.setItem("tgLink",tgLink);
-  tgBtn.href=tgLink;
-  alert("Telegram updated");
+  db.ref("telegram/link").set(tgInput.value);
 }
 
-function renderAdmin(){
+/* TEXTS */
+const container=document.getElementById("container");
+const list=document.getElementById("list");
+
+db.ref("texts").on("value",snap=>{
+  container.innerHTML="";
   list.innerHTML="";
-  texts.forEach((t,i)=>{
+  snap.forEach(c=>{
+    const txt=c.val();
+
+    container.innerHTML+=`
+      <div class="textview">${txt}</div>
+      <button class="copy" onclick="copyText('${txt.replace(/'/g,"")}')">Copy</button>
+    `;
+
     list.innerHTML+=`
-      <div class="item">${t}
-      <br><button class="btn" onclick="delText(${i})">Delete</button></div>
+      <div class="item">${txt}<br>
+      <button class="btn" onclick="delText('${c.key}')">Delete</button></div>
     `;
   });
-}
+});
 
 function addText(){
-  if(newText.value.trim()){
-    texts.push(newText.value);
-    save();
+  if(newText.value){
+    db.ref("texts").push(newText.value);
     newText.value="";
   }
 }
 
-function delText(i){
-  texts.splice(i,1);
-  save();
+function delText(id){
+  db.ref("texts/"+id).remove();
 }
 
-function save(){
-  localStorage.setItem("texts",JSON.stringify(texts));
-  render(); renderAdmin();
+function copyText(t){
+  navigator.clipboard.writeText(t);
+  toast.style.display="block";
+  setTimeout(()=>toast.style.display="none",1200);
 }
+
+/* ADMIN OPEN */
+const ADMIN_PASSWORD="Nirob";
+let tap=0;
+title.onclick=()=>{
+  tap++;
+  if(tap>=5){
+    tap=0;
+    if(prompt("Password")==ADMIN_PASSWORD){
+      admin.style.display="block";
+    }else alert("Wrong Password");
+  }
+};
 </script>
 
 </body>
